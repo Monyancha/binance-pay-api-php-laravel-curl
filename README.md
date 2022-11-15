@@ -184,6 +184,93 @@ Binance Pay will send order events with final status to partner for notification
 > I'll update a webhook callback usage for this soon! You'll be able to receive the JSON responses and validate payments even storing them to your database
 
 
+## Binance Order Webhook Notification API and Payment Confirmation 🥳🥳🥳🥳🥳
+You can now be able to confirm your client payments easily with this api. All you need to do is to set a callback url where Binance will send you a notification regarding the status of the customer payment!.
+Binance Pay will send order events with final status to partner for notification. You will be able to configure webhook endpoints via the Binance Merchant Admin Portal. Result of the orders that are close will be notified to you through this webhook with bizStatus = "PAY_CLOSED".
+
+Create a file in your server to act as a callback receiver to log the binance responses. Example is below:
+
+> Create binancePayWebhookCallbackApi.php in your domain root directory
+
+Then paste the code below
+
+## USAGE IN PHP
+
+```
+
+<?php
+
+  $callbackResponse = file_get_contents('php://input');
+  $logFile = "binancePayWebhookCallbackFile.json";
+  $log = fopen($logFile, "a");
+  fwrite($log, $callbackResponse);
+  fclose($log);
+  
+?>
+
+```
+
+> $logFile = "binancePayWebhookCallbackFile.json";
+
+Create a Json Log file - binancePayWebhookCallbackFile.json - where the responses will be stored.
+
+Once done your webhook url now will be https://yourdomain.com/binancePayWebhookCallbackApi.php
+
+> This means that once a customer pays, Binance will trigger a notification to your callback webhook url with the status of the payment. This data will be stored in your Logfile that you created. 
+
+To achive this you first need to login to your Binance Merchant account and your webhook url : https://yourdomain.com/binancePayWebhookCallbackApi.php
+
+Follow this link to login to Binance Merchant Account and add your Webhook Url: https://merchant.binance.com/en/dashboard/developers/webhooks
+
+
+## YOUR BUSINESS LOGIC 
+
+If you need to store customer data and payment status then you need to create your business logic in the webhook file or create a new file for your logics.
+
+You can get the success object from the webhook response then proceed to validate the customer data and store to your database.
+
+
+### Alternative
+
+> If you don't need to store the responses then just use the respose directly from binance webhook: I have given a good example below implementing the same in Laravel with only 1 Line;
+
+## USAGE IN LARAVEL
+
+```
+
+    public function callbackStk (Request $request){
+
+        header("Content-Type: application/json");
+        
+        //This line gets all your json response from binance when a customer makes payment
+        
+        $webhookResponse = $request->all();
+        
+        //Now get success object directly from the response eg.
+        
+        //Warning: This is just example and you should not use it for your implementation. Get the exact responses from your webhook callback file!
+        
+        $returnCode = $webhookResponse['returnCode'];
+        $returnMessage = $webhookResponse['returnMessage'];
+        
+        //Then start implementing your logic eg.
+        
+        if($returnCode == "SUCCESS"){
+        
+            //Do some logic here
+        
+        }
+  
+    }
+
+
+```
+
+## Finally
+
+> If you need any help regarding webhook confirmation and validation of customer payment and business logic get in touch with me with the contacts on the footer below.
+
+
 ## Upcoming Updates
 
 - [x] #C2B - Create Order/Initiate binance payment :tada:
